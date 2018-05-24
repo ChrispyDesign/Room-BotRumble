@@ -5,81 +5,95 @@ using XboxCtrlrInput;
 
 public class PlayerPunching : MonoBehaviour {
 
-	// variables related to punching
-	public float windUpMin;						// the amount of time needed before you can fire a punch
-	public GameObject leftFist; 				// game object for left fist
-	public GameObject rightFist;				// game object for right fist
-	public float punchDistance;					// variable to determine how far a player can punch
-	public float punchSpeed;					// variable to determine how fast the player's punch will move
-	private bool canPunchLeft = true;			// bool to determine whether a player can throw a left punch
-	private bool canPunchRight = true;			// determine whether player can throw a right punch
+    // variables for doing multiple controllers
+    public XboxButton punchButton;
+    public XboxController controller;                   // allows you to hook up multiple controllers to different players
 
-	private float timePassedLeft;				// amount of time that has passed, used to determine how long before you can fire a left punch again
-	private float timePassedRight;				// amount of time that has passed, used to determine how long before you can fire a right punch again
-	private float punchRate;					// amount of time after a punch before you can wind up another punch
+    // variable control the time and speed of punch
+    public float punchDuration = 0.0f;                  // timer that will tick with deltaTime, interacts with punch duration max
+    public float punchDurationLimit;                      // the amount of time that a punch will be travel for before it resets
+    public float punchSpeed;                            // how fast the punch moves when it gets launched
 
-	void Start()
-	{
-		
+    // winding up punches
+    public float windUpTimer = 0.0f;                   // how long the player has been winding up a punch
+    public float windUpMin = 1.0f;                      // amount of time you need to wind up a punch
+
+    // cooldown after throwing a punch
+    public bool canWindUp = true;                      // whether player can wind up punch
+    public float windUpCD = 1.0f;                       // amount of time after a punch is thrown before you can wind up again
+
+    // throwing a punch
+    public bool canPunch = false;                      // whether player can throw a punch after winding it up
+    public GameObject fistReset;                        // game object to reset the fist location
+    public Rigidbody fistRB;                            // get the fist's rigidbody
+
+    void Start () {
+        fistRB = GetComponent<Rigidbody>();             // assign the variable for the fist rigid body
 	}
-
+	
 	// Update is called once per frame
-	void Update () {
-		Punch ();
-	}
+	void Update ()
+    {
+        WindUp();                                       // run the WindUp() function
+        Punch();                                        // run the Punch() function
+        //WindUpCooldown();                               // run the WindUpCooldown()
+        windUpTimer += Time.deltaTime;
+        if (windUpTimer >= windUpCD)
+        {
+            canWindUp = true;
+        }
+    }
 
-	private void Punch()
-	{
-		if (canPunchLeft)
-		{
-			if (XCI.GetButton(XboxButton.LeftBumper))
-			{
-				Debug.Log ("left bumper down");
-				if (XCI.GetButtonUp (XboxButton.LeftBumper)) 
-				{
-					Debug.Log ("left bumper up");
-					canPunchLeft = false;
-//					leftFist.GetComponent<Rigidbody> ().AddForce (gameObject.transform.forward * punchSpeed, ForceMode.Force);		// after the button is pressed and released, fire a punch. Will need to change up this function
-					PunchCooldownLeft;
-				}
+    void WindUp()
+    {
+        if (/*XCI.GetButton(XboxButton.RightBumper)*/ XCI.GetButton(punchButton, controller) && canWindUp == true)      // When the Right Bumper is held down, execute
+        {
+            Debug.Log("winding up a punch");
+            windUpTimer += Time.deltaTime;              // increase the windUpTimer as time passes
 
-			}
-		}
+            if (windUpTimer >= windUpMin)                // once you have wound up the punch enough...
+            {
+                Debug.Log("You can punch");
+                canPunch = true;                        // lets player fire a punch with the Punch() function
+            }
+        }
+    }                                                       // the player can wind up a punch
 
-		if (canPunchRight) 
-		{
-			if (XCI.GetButton(XboxButton.RightBumper))
-			{
-				Debug.Log ("right bumper down");
-				if (XCI.GetButtonUp (XboxButton.RightBumper)) 
-				{
-					Debug.Log ("right bumper up");
-					canPunchRight = false;
-//					rightFist.GetComponent<Rigidbody> ().AddForce (gameObject.transform.forward * punchSpeed, ForceMode.Force);		// after the button is pressed and released, fire a punch. Will need to change up this function
-					PunchCooldownRight;
-				}
+    void Punch()                                                            // the player fires a punch
+    {
+        if (/*XCI.GetButtonUp(XboxButton.RightBumper*/XCI.GetButtonUp(punchButton, controller))                        // When the bumper is released, fire a punch
+        {
+            if (canPunch == true)                                           // if the player can punch (have wound up enough)
+            {
+                Debug.Log("Punch is firing");
+                punchDuration = 0.0f;                                       // reset the punch duration timer
+                canPunch = false;                                           // cannot punch now
+                fistRB.AddForce(transform.forward * punchSpeed);            // move the fist forward
+                windUpTimer = 0.0f;                                         // reset how long you have to wind up a punch before you can fire
+            }
+            //Debug.Log("punch duration is ticking");
+            canWindUp = false;                                              // make player unable to wind up another punch
+            WindUpCooldown();                                               // invoke the WindUpCooldown() function
+        }
+        // how long the punch will go for
+        punchDuration += Time.deltaTime;                                    // punch duration ticks up
+        if (punchDuration >= punchDurationLimit)                              // once the punch has been out for long enough...
+        {
+            //Debug.Log("punch reset");
+            transform.position = fistReset.transform.position;          // teleport the punch back to the reset point
+            fistRB.velocity = Vector3.zero;                             // reset the velocity of the fist
+            fistRB.angularVelocity = Vector3.zero;                      // reset the angular velocity of the fist
+        }
+    }
 
-			}
-		}
-	}
-
-	// next two functions are for determining how much time after a punch it will be before you can throw another punch
-	private void PunchCooldownLeft()
-	{
-		timePassedLeft = 0.0f;
-		if (timePassedLeft >= punchRate) 
-		{
-			canPunchLeft = true;
-		}
-	}
-
-	private void PunchCooldownRight()
-	{
-		timePassedLeft = 0.0f;
-		if (timePassedRight >= punchRate) 
-		{
-			canPunchRight = true;
-		}
-	}
-
+    void WindUpCooldown()                                                   // after throwing a punch, there will be a cooldown before you can throw another punch
+    {
+        Debug.Log("please wait before firing again");
+        windUpTimer = 0.0f;
+        //windUpTimer += Time.deltaTime;
+        //if (windUpTimer >= windUpCD)
+        //{
+        //    canWindUp = true;
+        //}
+    }
 }
