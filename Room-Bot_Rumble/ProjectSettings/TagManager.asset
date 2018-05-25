@@ -4,8 +4,10 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Right Fist
-  - Left Fist
+  - Player1
+  - Player2
+  - Player3
+  - Player4
   layers:
   - Default
   - TransparentFX
