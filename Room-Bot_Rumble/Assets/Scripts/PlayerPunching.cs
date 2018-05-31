@@ -28,6 +28,7 @@ public class PlayerPunching : MonoBehaviour {
     private bool canPunch = false;                      // whether player can throw a punch after winding it up
     public Transform fistReset;                         // game object to reset the fist location
     public Rigidbody fistRB;                            // get the fist's rigidbody
+    public SphereCollider fist;                         // grabs the sphere collider for the fist
 
     // aiming a punch
     public Vector3 previousAimDirection = Vector3.forward;         // initialises the aiming of the punch to directly in front of you
@@ -44,6 +45,7 @@ public class PlayerPunching : MonoBehaviour {
 
     void Start () {
         fistRB = GetComponent<Rigidbody>();             // assign the variable for the fist rigid body
+        fist.enabled = false;
 	}
 	
 	void Update ()
@@ -94,9 +96,10 @@ public class PlayerPunching : MonoBehaviour {
     {
         if (/*XCI.GetButtonUp(XboxButton.RightBumper*/XCI.GetButtonUp(punchButton, controller))                        // When the bumper is released, fire a punch
         {
+            fist.enabled = true;
             if (canPunch == true)                                           // if the player can punch (have wound up enough)
             {
-                Debug.Log("Punch is firing");
+                //Debug.Log("Punch is firing");
                 punchDuration = 0.0f;                                       // reset the punch duration timer
                 canPunch = false;                                           // cannot punch now
                 fistRB.AddForce(/*transform.parent.transform.forward*/ punchVector * punchSpeed);            // move the fist forward
@@ -108,12 +111,13 @@ public class PlayerPunching : MonoBehaviour {
         }
         // how long the punch will go for
         punchDuration += Time.deltaTime;                                    // punch duration ticks up
-        if (punchDuration >= punchDurationLimit)                              // once the punch has been out for long enough...
+        if (punchDuration >= punchDurationLimit)                            // once the punch has been out for long enough...
         {
             //Debug.Log("punch reset");
             transform.position = fistReset.transform.position;          // teleport the punch back to the reset point
             fistRB.velocity = Vector3.zero;                             // reset the velocity of the fist
             fistRB.angularVelocity = Vector3.zero;                      // reset the angular velocity of the fist
+            fist.enabled = false;
         }
     }
 
@@ -122,7 +126,7 @@ public class PlayerPunching : MonoBehaviour {
     {
         if ((other.tag == "Player1" || other.tag == "Player2" || other.tag == "Player3" || other.tag == "Player4") && other.tag != gameObject.transform.parent.transform.parent.transform.parent.tag)
         {
-            Debug.Log("enemy hit");
+            //Debug.Log("enemy hit");
             other.GetComponent<Rigidbody>().AddForce(punchVector * knockback);
         }
     }
