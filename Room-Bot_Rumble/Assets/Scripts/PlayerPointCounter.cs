@@ -15,6 +15,15 @@ public class PlayerPointCounter : MonoBehaviour {
     public Text scoreOutputText;             // assigns the UI element that updates the score for the player
     public int pointsInt;                     // variable to hold the points value as an int
 
+    // assign the other players
+    public List<GameObject> OtherPlayers;
+
+    // get the winning indicator
+    public GameObject winningIndicator;
+
+    //// variable for the magnitude at which the text will increase when a player is winning
+    //public int textSizeFactor = 20;
+
     //private float pointTimer = 0.0f;       // will tick up with time delta time to determine how many points a player is earning
 
     //private void Awake()
@@ -43,6 +52,7 @@ public class PlayerPointCounter : MonoBehaviour {
     {
         pointsInt = (int)points;
         UpdateUI();
+        CompareScores();
         if (CZ == null)                                         // if there isn't a CZ in the scene (i.e. after one has been destroyed), finds it
         {
             //Debug.Log("where's the CZ");
@@ -50,7 +60,7 @@ public class PlayerPointCounter : MonoBehaviour {
         }
 
         //pointTimer += Time.deltaTime;
-        if (earningPoints == true)
+        if (earningPoints == true)                              // while the player is earning points, gain points and subtract points from the CZ
         {
             //Debug.Log(points);
             points += pointMultiplier * Time.deltaTime;         // points will tick up as the player remains in the control zone 
@@ -63,4 +73,20 @@ public class PlayerPointCounter : MonoBehaviour {
         scoreOutputText.text = pointsInt.ToString();
     }
 
+    void CompareScores()
+    {
+        //Debug.Log("comparing scores");
+        for (int i = 0; i < OtherPlayers.Count; i++)
+        {
+            if (pointsInt < OtherPlayers[i].GetComponent<PlayerPointCounter>().pointsInt)
+            {
+                winningIndicator.SetActive(false);
+            }
+            else if (pointsInt > OtherPlayers[i].GetComponent<PlayerPointCounter>().pointsInt)
+            {
+                winningIndicator.SetActive(true);
+                //scoreOutputText.text.character.fontSize += textSizeFactor
+            }
+        }
+    }
 }

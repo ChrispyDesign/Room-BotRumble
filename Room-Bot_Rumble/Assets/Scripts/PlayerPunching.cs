@@ -40,6 +40,9 @@ public class PlayerPunching : MonoBehaviour {
     // knocking back a player with a punch
     public float knockback = 2000f;
 
+    // let a player steal points when they punch another player
+    public float punchSteal = 3.0f;                                 // how many points are stolen when a punch lands
+
     // drawing a line from the body to the fists
     public LineRenderer punchLine;                        // the line renderer for the fists
 
