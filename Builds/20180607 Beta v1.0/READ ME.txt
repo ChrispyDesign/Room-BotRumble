@@ -1,0 +1,9 @@
+CONTROLS
+Requires Xbox controllers and supports up to 4 players. 
+
+You are always moving forward. Punches need to be wound up for a minimum time before a punch can be fired. s
+
+Left Bumper: Rotate to the left, and wind up a punch. Release to fire the punch. 
+Right Bumper: Rotatet to the right, and wind up a right punch. Release to fire the punch
+Left Stick: Aim your left punch
+Right Stick: Aim your right punch

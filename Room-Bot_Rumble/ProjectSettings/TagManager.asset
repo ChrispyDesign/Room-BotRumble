@@ -8,9 +8,8 @@ TagManager:
   - Player2
   - Player3
   - Player4
-  - Right Fist
-  - Left Fist
   - Control Zone
+  - Number of Players
   layers:
   - Default
   - TransparentFX

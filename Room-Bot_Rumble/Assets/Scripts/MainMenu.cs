@@ -30,6 +30,7 @@ public class MainMenu : MonoBehaviour {
         Application.Quit();
         if (XCI.GetButtonDown(XboxButton.Back))
         {
+            Debug.Log("Game is quitting");
             Application.Quit();
         }
     }
@@ -85,7 +86,7 @@ public class MainMenu : MonoBehaviour {
     // load the next scene and start the game if Start is pressed by anyone
     public void StartGame()
     {
-        if (XCI.GetButtonDown(XboxButton.Start))
+        if (XCI.GetButtonDown(XboxButton.Start) /*&&NumberOfPlayersList[null]*/)
         {
             if (SceneManager.GetActiveScene().name == "MainMenu")          // if start is pressed and the current scene is "Main Menu"...
             {

@@ -45,6 +45,7 @@ public class PlayerMovement : MonoBehaviour {
         //}
 
         playerRB.MovePosition(playerRB.position + transform.forward * moveSpeed * Time.deltaTime);
+        Debug.DrawLine(playerRB.position, (playerRB.position + transform.forward) * 2, Color.magenta);
 
     }
 
