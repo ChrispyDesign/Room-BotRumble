@@ -17,6 +17,16 @@ public class MainMenu : MonoBehaviour {
     public Text greenReadyText;
     public Text yellowReadyText;
 
+    public int playerCounter = 0;                   // will be used to determine whether you can press start to play as long as there is at least 2 players
+    public List<bool> playerList;                   // the list from the Number Of Players GO
+
+    public Scene scene1;
+
+    private void Start()
+    {
+        playerList = NumberOfPlayersList.GetComponent<NumberOfPlayers>().PlayersPlaying;
+    }
+
     private void Update()
     {
         SelectPlayers();
@@ -83,15 +93,29 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
+    void CountPlayers()
+    {
+        for (int i = 0; i < playerList.Count; i++)
+        {
+            if (playerList[i] == true)
+                playerCounter += 1;
+        }
+    }
+
     // load the next scene and start the game if Start is pressed by anyone
     public void StartGame()
     {
-        if (XCI.GetButtonDown(XboxButton.Start) /*&&NumberOfPlayersList[null]*/)
+        if (XCI.GetButtonDown(XboxButton.Start))
         {
-            if (SceneManager.GetActiveScene().name == "MainMenu")          // if start is pressed and the current scene is "Main Menu"...
+            CountPlayers();
+            if (playerCounter >= 2)
             {
-                SceneManager.LoadScene("Main", LoadSceneMode.Single);
+                if (SceneManager.GetActiveScene().name == "MainMenu")          // if start is pressed and the current scene is "Main Menu"...
+                {
+                    SceneManager.LoadScene("Main_001_TunnelMiddle", LoadSceneMode.Single);
+                }
             }
+            playerCounter = 0;
         }
     }
 }

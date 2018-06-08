@@ -40,11 +40,13 @@ public class PlayerPunching : MonoBehaviour {
     // knocking back a player with a punch
     public float knockback = 2000f;
 
-    // let a player steal points when they punch another player
-    public float punchSteal = 3.0f;                                 // how many points are stolen when a punch lands
+    //// let a player steal points when they punch another player
+    //public float punchSteal = 3.0f;                                 // how many points are stolen when a punch lands
 
     // drawing a line from the body to the fists
     public LineRenderer punchLine;                        // the line renderer for the fists
+
+    public GameObject punchLight;                          // the light attached to the fists
 
     void Start () {
         fistRB = GetComponent<Rigidbody>();             // assign the variable for the fist rigid body
@@ -64,6 +66,7 @@ public class PlayerPunching : MonoBehaviour {
         AimPunch();                                     // run the aim punch function
         UpdateLines();                                  // draw lines in the game from the player to the fists
         UpdateAimIndicator();                           // draw an indicator that shows where the player is aiming
+        FlashPunchIndicator();
     }
 
     // allow the player to wind up a punch before they can fire it
@@ -121,6 +124,7 @@ public class PlayerPunching : MonoBehaviour {
             fistRB.velocity = Vector3.zero;                             // reset the velocity of the fist
             fistRB.angularVelocity = Vector3.zero;                      // reset the angular velocity of the fist
             fist.enabled = false;
+            punchLight.SetActive(false);                                // turns off the light attached to the fists
         }
     }
 
@@ -168,9 +172,19 @@ public class PlayerPunching : MonoBehaviour {
         // 3. give it a material that will stretch as it extends
     }
 
+    // rotates the aim indicator
     void UpdateAimIndicator()
     {
         aimLine.SetPosition(0, aimIndicatorOrigin.transform.position);
         aimLine.SetPosition(1, aimIndicatorOrigin.transform.position + punchVector.normalized * 5);
+    }
+
+    // will turn a light on while the player's punch is charged
+    void FlashPunchIndicator()
+    {
+        if (canPunch == true)
+            punchLight.SetActive(true);
+        //else
+        //    punchLight.SetActive(false);
     }
 }

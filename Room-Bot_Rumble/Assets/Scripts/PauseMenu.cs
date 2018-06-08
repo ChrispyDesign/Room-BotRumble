@@ -19,7 +19,7 @@ public class PauseMenu : MonoBehaviour {
     void Update() {
         if (GetComponent<EndGame>().gameHasEnded == true)
         {
-            Debug.Log("Game has ended");
+            //Debug.Log("Game has ended");
             return;
         }
 

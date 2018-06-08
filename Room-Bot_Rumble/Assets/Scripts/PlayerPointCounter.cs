@@ -73,20 +73,30 @@ public class PlayerPointCounter : MonoBehaviour {
         scoreOutputText.text = pointsInt.ToString();
     }
 
+    // function to turn on and off the winning indicators
     void CompareScores()
     {
+        bool tempBool = true;
+
         //Debug.Log("comparing scores");
         for (int i = 0; i < OtherPlayers.Count; i++)
         {
-            if (pointsInt < OtherPlayers[i].GetComponent<PlayerPointCounter>().pointsInt)
-            {
-                winningIndicator.SetActive(false);
-            }
-            else if (pointsInt > OtherPlayers[i].GetComponent<PlayerPointCounter>().pointsInt)
-            {
-                winningIndicator.SetActive(true);
-                //scoreOutputText.text.character.fontSize += textSizeFactor
-            }
+            //if (pointsInt < OtherPlayers[i].GetComponent<PlayerPointCounter>().pointsInt)
+            //{
+            //    winningIndicator.SetActive(false);
+            //}
+            //else if (pointsInt > OtherPlayers[i].GetComponent<PlayerPointCounter>().pointsInt)
+            //{
+            //    winningIndicator.SetActive(true);
+            //    //scoreOutputText.text.character.fontSize += textSizeFactor
+            //}
+
+            if ((tempBool == true) && (pointsInt > OtherPlayers[i].GetComponent<PlayerPointCounter>().pointsInt))
+                tempBool = true;
+            else
+                tempBool = false;
+
         }
+        winningIndicator.SetActive(tempBool);
     }
 }

@@ -83,7 +83,7 @@ public class EndGame : MonoBehaviour {
     // once the game has ended, lets the players quit or restart
     void EndGameMenu()
     {
-        Debug.Log(gameHasEnded);
+        //Debug.Log(gameHasEnded);
         if (gameHasEnded == true)
         {
             if (XCI.GetButtonDown(XboxButton.Start))

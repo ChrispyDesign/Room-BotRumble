@@ -24,6 +24,8 @@ public class PlayerSpawner : MonoBehaviour {
     private void Awake()
     {
         numberOfPlayersGO = GameObject.Find("Number of Players");             // finds the number of players from the previous scene
+        if (numberOfPlayersGO == null)
+            numberOfPlayersLIST = new List<bool>();
         numberOfPlayersLIST = numberOfPlayersGO.GetComponent<NumberOfPlayers>().PlayersPlaying;
     }
 
