@@ -21,20 +21,26 @@ public class PlayerSpawner : MonoBehaviour {
     public Text P3Score;
     public Text P4Score;
 
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    // on awake, finds the number of players
     private void Awake()
     {
-        numberOfPlayersGO = GameObject.Find("Number of Players");             // finds the number of players from the previous scene
-        if (numberOfPlayersGO == null)
+        numberOfPlayersGO = GameObject.Find("Number of Players");                                   // finds the number of players from the previous scene
+        if (numberOfPlayersGO == null)                                                              // if there is no number of players GO, it creates a new list to prevent an error
             numberOfPlayersLIST = new List<bool>();
-        numberOfPlayersLIST = numberOfPlayersGO.GetComponent<NumberOfPlayers>().PlayersPlaying;
+        numberOfPlayersLIST = numberOfPlayersGO.GetComponent<NumberOfPlayers>().PlayersPlaying;     // gets the list from the player number tracker
     }
 
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    // based on the list gained from the player number tracker, only activates the players that correspond to who has selected Start
     void Start()
     {
-        if (numberOfPlayersLIST[0] == true)
+        if (numberOfPlayersLIST[0] == true)                     // if Player 1 has joined the game...
         {
-            P1.SetActive(true);
-            P1Score.gameObject.SetActive(true);
+            P1.SetActive(true);                                 // sets Player 1's character to be active
+            P1Score.gameObject.SetActive(true);                 // activates the score UI element for Player 1
         }
         if (numberOfPlayersLIST[1] == true)
         {
@@ -52,6 +58,4 @@ public class PlayerSpawner : MonoBehaviour {
             P4Score.gameObject.SetActive(true);
         }
     }
-
-   
 }

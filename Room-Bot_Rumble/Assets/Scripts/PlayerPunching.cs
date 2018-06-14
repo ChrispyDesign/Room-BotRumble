@@ -6,137 +6,132 @@ using XboxCtrlrInput;
 public class PlayerPunching : MonoBehaviour {
 
     // variables for doing multiple controllers
-    public XboxController controller;                   // allows you to hook up multiple controllers to different players
-    public XboxButton punchButton;                      // assigns the button that is used to control the punches
-    public XboxAxis punchStickX;                        // assigns the stick used to aim punches
-    public XboxAxis punchStickY;                        // assigns the stick used to aim punches
+    public XboxController controller;                                           // allows you to hook up multiple controllers to different players
+    public XboxButton punchButton;                                              // assigns the button that is used to control the punches
+    public XboxAxis punchStickX;                                                // assigns the stick used to aim punches
+    public XboxAxis punchStickY;                                                // assigns the stick used to aim punches
 
     // variable control the time and speed of punch
-    private float punchDuration = 0.0f;                  // timer that will tick with deltaTime, interacts with punch duration max
-    public float punchDurationLimit = 0.5f;             // the amount of time that a punch will be travel for before it resets
-    public float punchSpeed = 1000f;                    // how fast the punch moves when it gets launched
+    private float punchDuration = 0.0f;                                         // timer that will tick with deltaTime, interacts with punch duration max
+    public float punchDurationLimit = 0.5f;                                     // the amount of time that a punch will be travel for before it resets
+    public float punchSpeed = 1000f;                                            // how fast the punch moves when it gets launched
 
     // winding up punches
-    private float windUpTimer = 0.0f;                   // how long the player has been winding up a punch
-    public float windUpMin = 1.0f;                      // amount of time you need to wind up a punch
+    private float windUpTimer = 0.0f;                                           // how long the player has been winding up a punch
+    public float windUpMin = 1.0f;                                              // amount of time you need to wind up a punch
 
     // cooldown after throwing a punch
-    public bool canWindUp = true;                      // whether player can wind up punch
-    public float windUpCD = 1.0f;                       // amount of time after a punch is thrown before you can wind up again
+    public bool canWindUp = true;                                               // whether player can wind up punch
+    public float windUpCD = 1.0f;                                               // amount of time after a punch is thrown before you can wind up again
 
     // throwing a punch
-    private bool canPunch = false;                      // whether player can throw a punch after winding it up
-    public Transform fistReset;                         // game object to reset the fist location
-    public Rigidbody fistRB;                            // get the fist's rigidbody
-    public SphereCollider fist;                         // grabs the sphere collider for the fist
+    private bool canPunch = false;                                              // whether player can throw a punch after winding it up
+    public Transform fistReset;                                                 // game object to reset the fist location
+    public Rigidbody fistRB;                                                    // get the fist's rigidbody
+    public SphereCollider fist;                                                 // grabs the sphere collider for the fist
 
     // aiming a punch
-    public Vector3 previousAimDirection = Vector3.forward;         // initialises the aiming of the punch to directly in front of you
-    //public Color aimDirectionColour = Color.black;               // draws a line where the player is aiming for the Debug.DrawLine()
-    public Transform aimIndicatorOrigin;                           // where the aim indicators will originate from
-    public LineRenderer aimLine;                                   // the line renderer for the aim indicator
-    private Vector3 punchVector;                                   // where a punch is being aimed
+    public Vector3 previousAimDirection = Vector3.forward;                      // initialises the aiming of the punch to directly in front of you
+    public Transform aimIndicatorOrigin;                                        // where the aim indicators will originate from
+    public LineRenderer aimLine;                                                // the line renderer for the aim indicator
+    private Vector3 punchVector;                                                // where a punch is being aimed
 
     // knocking back a player with a punch
     public float knockback = 2000f;
 
-    //// let a player steal points when they punch another player
-    //public float punchSteal = 3.0f;                                 // how many points are stolen when a punch lands
-
     // drawing a line from the body to the fists
-    public LineRenderer punchLine;                        // the line renderer for the fists
+    public LineRenderer punchLine;                                              // the line renderer for the fists
+    public GameObject punchLight;                                               // the light attached to the fists
 
-    public GameObject punchLight;                          // the light attached to the fists
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     void Start () {
-        fistRB = GetComponent<Rigidbody>();             // assign the variable for the fist rigid body
-        fist.enabled = false;
+        fistRB = GetComponent<Rigidbody>();                                     // assign the variable for the fist rigid body
+        fist.enabled = false;                                                   // the fist starts off as inactive, so that you can't punch people without actually throwing a punch
 	}
-	
-	void Update ()
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    void Update ()
     {
-        WindUp();                                       // run the WindUp() function
-        Punch();                                        // run the Punch() function
-        //WindUpCooldown();                             // run the WindUpCooldown()
-        windUpTimer += Time.deltaTime;                  // ticks up the Wind Up Timer
-        if (windUpTimer >= windUpCD)                    // if punch wind up is off cooldown, allows the player to wind up a punch
+        WindUp();
+        Punch();
+        windUpTimer += Time.deltaTime;                                          // ticks up the Wind Up Timer
+        if (windUpTimer >= windUpCD)                                            // if punch wind up is off cooldown, allows the player to wind up a punch
         {
             canWindUp = true;
         }
-        AimPunch();                                     // run the aim punch function
-        UpdateLines();                                  // draw lines in the game from the player to the fists
-        UpdateAimIndicator();                           // draw an indicator that shows where the player is aiming
+        AimPunch();
+        UpdateLines();
+        UpdateAimIndicator();
         FlashPunchIndicator();
     }
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // allow the player to wind up a punch before they can fire it
     void WindUp()
     {
-        if (/*XCI.GetButton(XboxButton.RightBumper)*/ XCI.GetButton(punchButton, controller) && canWindUp == true)      // When the Right Bumper is held down, execute
+        if (XCI.GetButton(punchButton, controller) && canWindUp == true)        // When the Right Bumper is held down...
         {
-            //Debug.Log("winding up a punch");
-            windUpTimer += Time.deltaTime;              // increase the windUpTimer as time passes
+            windUpTimer += Time.deltaTime;                                      // increase the windUpTimer as time passes
 
-            if (windUpTimer >= windUpMin)                // once you have wound up the punch enough...
+            if (windUpTimer >= windUpMin)                                       // once you have wound up the punch enough...
             {
-                //Debug.Log("You can punch");
-                canPunch = true;                        // lets player fire a punch with the Punch() function
+                canPunch = true;                                                // lets player fire a punch with the Punch() function
             }
         }
-    }                                                       // the player can wind up a punch
-    
-    // after throwing a punch, there is a cooldown period where the player cannot throw a punch
-    void WindUpCooldown()                                                   // after throwing a punch, there will be a cooldown before you can throw another punch
-    {
-        //Debug.Log("please wait before firing again");
-        windUpTimer = 0.0f;
-        //windUpTimer += Time.deltaTime;
-        //if (windUpTimer >= windUpCD)
-        //{
-        //    canWindUp = true;
-        //}
     }
 
-    // launches the punch after the player has wound up a punch
-    void Punch()                                                            // the player fires a punch
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    // after throwing a punch, there is a cooldown period where the player cannot throw a punch
+    void WindUpCooldown()                                                       // after throwing a punch, there will be a cooldown before you can throw another punch
     {
-        if (/*XCI.GetButtonUp(XboxButton.RightBumper*/XCI.GetButtonUp(punchButton, controller))                        // When the bumper is released, fire a punch
+        windUpTimer = 0.0f;                                                     // sets that timer to 0. It is constantly increasing in the Update() function
+    }
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    // launches the punch after the player has wound up a punch
+    void Punch()
+    {
+        if (XCI.GetButtonUp(punchButton, controller))                           // when the bumper is released...
         {
-            fist.enabled = true;
-            if (canPunch == true)                                           // if the player can punch (have wound up enough)
+            fist.enabled = true;                                                // enables the fist so it can start colliding with things
+            if (canPunch == true)                                               // if the player can punch (have wound up enough)...
             {
-                //Debug.Log("Punch is firing");
-                punchDuration = 0.0f;                                       // reset the punch duration timer
-                canPunch = false;                                           // cannot punch now
-                fistRB.AddForce(/*transform.parent.transform.forward*/ punchVector * punchSpeed);            // move the fist forward
-                windUpTimer = 0.0f;                                         // reset how long you have to wind up a punch before you can fire
+                punchDuration = 0.0f;                                           // reset the punch duration timer
+                canPunch = false;                                               // the player can no longer punch
+                fistRB.AddForce(punchVector * punchSpeed);                      // apply force to the fist, to move it forward
+                windUpTimer = 0.0f;                                             // reset how long you have to wind up a punch before you can fire
             }
-            //Debug.Log("punch duration is ticking");
-            canWindUp = false;                                              // make player unable to wind up another punch
-            WindUpCooldown();                                               // invoke the WindUpCooldown() function
+            canWindUp = false;                                                  // make player unable to wind up another punch
+            WindUpCooldown();                                                   // invoke the WindUpCooldown() function
         }
         // how long the punch will go for
-        punchDuration += Time.deltaTime;                                    // punch duration ticks up
-        if (punchDuration >= punchDurationLimit)                            // once the punch has been out for long enough...
+        punchDuration += Time.deltaTime;                                        // punch duration ticks up
+        if (punchDuration >= punchDurationLimit)                                // once the punch has been out for long enough...
         {
-            //Debug.Log("punch reset");
-            transform.position = fistReset.transform.position;          // teleport the punch back to the reset point
-            fistRB.velocity = Vector3.zero;                             // reset the velocity of the fist
-            fistRB.angularVelocity = Vector3.zero;                      // reset the angular velocity of the fist
+            transform.position = fistReset.transform.position;                  // teleport the punch back to the reset point
+            fistRB.velocity = Vector3.zero;                                     // reset the velocity of the fist
+            fistRB.angularVelocity = Vector3.zero;                              // reset the angular velocity of the fist
             fist.enabled = false;
-            punchLight.SetActive(false);                                // turns off the light attached to the fists
+            punchLight.SetActive(false);                                        // turns off the light attached to the fists
         }
     }
 
     // other players will get knocked back if they get hit by a fist
     private void OnTriggerEnter(Collider other)
     {
+        // if the fist collides with a player that isn't the player that this fist is attached to
         if ((other.tag == "Player1" || other.tag == "Player2" || other.tag == "Player3" || other.tag == "Player4") && other.tag != gameObject.transform.parent.transform.parent.transform.parent.tag)
         {
-            //Debug.Log("enemy hit");
-            other.GetComponent<Rigidbody>().AddForce(punchVector * knockback);
+            other.GetComponent<Rigidbody>().AddForce(punchVector * knockback);  // knock back the player that the punch hit
         }
     }
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // allows the player to aim their punch
     void AimPunch()
@@ -161,30 +156,30 @@ public class PlayerPunching : MonoBehaviour {
         previousAimDirection = punchVector;
     }
 
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     // draw a line from the body to the fists
     void UpdateLines()
     {
-        punchLine.SetPosition(0, transform.parent.transform.position);
-        punchLine.SetPosition(1, transform.position);
-
-        // 1. get the line renderer component off of the game object punchLine
-        // 2. set position Element 1 and Element 2 to the vectors for (shoulder, fist)
-        // 3. give it a material that will stretch as it extends
+        punchLine.SetPosition(0, transform.parent.transform.position);      // sets the beginning of the punch line line renderer to be the fist reset position
+        punchLine.SetPosition(1, transform.position);                       // sets the end of the punch line line renderer to be where the fist is
     }
 
-    // rotates the aim indicator
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    // lets the player rotate the aim indicator, showing where there punch will land
     void UpdateAimIndicator()
     {
-        aimLine.SetPosition(0, aimIndicatorOrigin.transform.position);
-        aimLine.SetPosition(1, aimIndicatorOrigin.transform.position + punchVector.normalized * 5);
+        aimLine.SetPosition(0, aimIndicatorOrigin.transform.position);      // sets the beginning of the aim indicator line renderer to be where the player is
+        aimLine.SetPosition(1, aimIndicatorOrigin.transform.position + punchVector.normalized * 5);     // sets the end of the aim indicator line renderer to be where the player is tilting the sticks, normalised
     }
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // will turn a light on while the player's punch is charged
     void FlashPunchIndicator()
     {
         if (canPunch == true)
             punchLight.SetActive(true);
-        //else
-        //    punchLight.SetActive(false);
     }
 }

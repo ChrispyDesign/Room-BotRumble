@@ -6,70 +6,60 @@ using UnityEngine.UI;
 
 public class PlayerMovement : MonoBehaviour {
 
-    // setting up multiple controllers
-    public Rigidbody playerRB;
-    public XboxController controller;
+    // setting up multiple controllers for each player
+    public Rigidbody playerRB;                                              // stores the rigid body of the player
+    public XboxController controller;                                       // lets you assign which controller to each player
     
     // defining variables for the player movespeed
-    public float moveSpeed = 3.0f;
-    public float rotationSpeed = 75.0f;
-    //public float maxSpeed = 5.0f;
+    public float moveSpeed = 3.0f;                                          // how fast the player can move
+    public float rotationSpeed = 75.0f;                                     // how fast they can rotate
 
     // game objects for where fists are so we can invoke their functions
-    public GameObject leftFist;
+    public GameObject leftFist; 
     public GameObject rightFist;
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     private void Start()
     {
-        playerRB = GetComponent<Rigidbody>();           // get the rigid body of the player
+        playerRB = GetComponent<Rigidbody>();                               // get the rigid body of the player
     }
 
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     void FixedUpdate () {
-        MovePlayer();           // run Move Player()
-        RotatePlayer();         // run Rotate Player()
-        //Debug.DrawLine(transform.position, leftFist.transform.position, Color.blue);    // draw a line from the body to the left fist
-        //Debug.DrawLine(transform.position, rightFist.transform.position, Color.red);    // draw a line from the body to the right fist
+        MovePlayer();
+        RotatePlayer();
     }
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     // the player will constantly be moving forward
     void MovePlayer()
     {
-        //transform.position += transform.forward * moveSpeed * Time.deltaTime;         // just adjust the transform to move the player
-
-        //Debug.Log("I'm moving");
-
-        //if (Vector3.Magnitude(playerRB.velocity) <= maxSpeed)                                 // only add force if the player is slowing down
-        //{
-        //    playerRB.AddForce(transform.forward * moveSpeed);                               // use physics on a rigid body to move the player
-        //    Debug.DrawLine(playerRB.position, Vector3.forward, Color.black);
-        //}
-
-        playerRB.MovePosition(playerRB.position + transform.forward * moveSpeed * Time.deltaTime);
-        Debug.DrawLine(playerRB.position, (playerRB.position + transform.forward) * 2, Color.magenta);
-
+        playerRB.MovePosition(playerRB.position + transform.forward * moveSpeed * Time.deltaTime);              // moves the player forward using physics on update
     }
 
-    // Rotate the player when one of the triggers is held down
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    // Rotate the player when one of the bumpers is held down
     void RotatePlayer()
     {
-        if (XCI.GetButton(XboxButton.LeftBumper, controller) && leftFist.GetComponent<PlayerPunching>().canWindUp == true && XCI.GetButton(XboxButton.RightBumper, controller) && rightFist.GetComponent<PlayerPunching>().canWindUp == true)
+        // if both bumpers are held down, you do not turn and just continue moving straight
+        if (XCI.GetButton(XboxButton.LeftBumper, controller) && XCI.GetButton(XboxButton.RightBumper, controller))
         {
             return;
         }
-        if (XCI.GetButton(XboxButton.LeftBumper, controller)/* && leftFist.GetComponent<PlayerPunching>().canWindUp == true*/)      // also checks if the player can wind up a punch on the respective side
+
+        // if the left bumper is held down, rotate the player to the left based on the Rotation Speed
+        if (XCI.GetButton(XboxButton.LeftBumper, controller))
         {
-            //Debug.Log("Left Bumper");
-            //transform.Rotate(new Vector3(0.0f, -rotationSpeed * Time.deltaTime));
             playerRB.MoveRotation(playerRB.transform.rotation * Quaternion.Euler(0.0f, -rotationSpeed * Time.deltaTime, 0.0f));
-            //playerRB.MoveRotation(new Quaternion(0.0f, -rotationSpeed * Time.deltaTime, 0.0f, 0.0f));
         }
-        if (XCI.GetButton(XboxButton.RightBumper, controller)/* && rightFist.GetComponent<PlayerPunching>().canWindUp == true*/)    // also checks if the player can wind up a punch on the respective side
+        // if the right bumper is held down, rotate the player to the left based on the Rotation Speed
+        if (XCI.GetButton(XboxButton.RightBumper, controller))
         {
-            //Debug.Log("Right Bumper");
-            //transform.Rotate(new Vector3(0.0f, rotationSpeed * Time.deltaTime));
             playerRB.MoveRotation(playerRB.transform.rotation * Quaternion.Euler(0.0f, rotationSpeed*Time.deltaTime, 0.0f));
         }
     }
-
-    
 }

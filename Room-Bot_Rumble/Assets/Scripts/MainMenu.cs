@@ -11,7 +11,7 @@ public class MainMenu : MonoBehaviour {
     // game object that will persist between scenes, storing the data for the number of players
     public GameObject NumberOfPlayersList;
 
-    // variables that store the text that will be turned on or off
+    // variables that store the text that indicates which player has readied up
     public Text blueReadyText;
     public Text redReadyText;
     public Text greenReadyText;
@@ -20,12 +20,15 @@ public class MainMenu : MonoBehaviour {
     public int playerCounter = 0;                   // will be used to determine whether you can press start to play as long as there is at least 2 players
     public List<bool> playerList;                   // the list from the Number Of Players GO
 
-    public Scene scene1;
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+    // on start, finds the list of players who are playing
     private void Start()
     {
         playerList = NumberOfPlayersList.GetComponent<NumberOfPlayers>().PlayersPlaying;
     }
+
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     private void Update()
     {
@@ -34,25 +37,30 @@ public class MainMenu : MonoBehaviour {
         QuitGame();
     }
 
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     // function to exit the game
     public void QuitGame()
     {
-        Application.Quit();
-        if (XCI.GetButtonDown(XboxButton.Back))
+        Application.Quit();                         // invoked when the button is pressed on the UI
+        Debug.Log("Game is quitting");              // console message to let us know it is quitting in editor
+        if (XCI.GetButtonDown(XboxButton.Back))     // also allows players to quit the game by just pressing "Back"
         {
-            Debug.Log("Game is quitting");
-            Application.Quit();
+            Debug.Log("Game is quitting");          // console message to let us know it is quitting in editor
+            Application.Quit();                     // quits the game
         }
     }
 
-    // how many players will be in the game
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    // lets players "ready up" for the game by pressing "A", and cancel readying up by pressing "B"
     public void SelectPlayers()
     {
         // if A is pressed on a controller, that player has now joined the game
         if (XCI.GetButtonDown(XboxButton.A, XboxController.First))
         {
-            NumberOfPlayersList.GetComponent<NumberOfPlayers>().PlayersPlaying[0] = true;
-            blueReadyText.gameObject.SetActive(true);
+            NumberOfPlayersList.GetComponent<NumberOfPlayers>().PlayersPlaying[0] = true;       // updates the player list based on who pressed "A"
+            blueReadyText.gameObject.SetActive(true);                                           // activates the "ready" text based on who pressed "A"
         }
         if (XCI.GetButtonDown(XboxButton.A, XboxController.Second))
         {
@@ -70,11 +78,11 @@ public class MainMenu : MonoBehaviour {
             yellowReadyText.gameObject.SetActive(true);
         }
 
-        // if B is pressed on a controller, that player cancels their role in the game
+        // if B is pressed on a controller, that player cancels them readying up
         if (XCI.GetButtonDown(XboxButton.B, XboxController.First))
         {
-            NumberOfPlayersList.GetComponent<NumberOfPlayers>().PlayersPlaying[0] = false;
-            blueReadyText.gameObject.SetActive(false);
+            NumberOfPlayersList.GetComponent<NumberOfPlayers>().PlayersPlaying[0] = false;      // updates the player list based on who pressed "B"
+            blueReadyText.gameObject.SetActive(false);                                          // deactivates the "ready" text based on who pressed "B"
         }
         if (XCI.GetButtonDown(XboxButton.B, XboxController.Second))
         {
@@ -93,6 +101,9 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    // goes through the list to count the number of players who have readied up. This is called in the StartGame() function
     void CountPlayers()
     {
         for (int i = 0; i < playerList.Count; i++)
@@ -102,20 +113,22 @@ public class MainMenu : MonoBehaviour {
         }
     }
 
-    // load the next scene and start the game if Start is pressed by anyone
+    //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    // load the next scene and start the game if Start is pressed by at least 2 people
     public void StartGame()
     {
-        if (XCI.GetButtonDown(XboxButton.Start))
+        if (XCI.GetButtonDown(XboxButton.Start))                                            // when start is pressed...
         {
-            CountPlayers();
-            if (playerCounter >= 2)
+            CountPlayers();                                                                 // counts the number of players who have readied up
+            if (playerCounter >= 2)                                                         // if at least 2 players have readied up...
             {
-                if (SceneManager.GetActiveScene().name == "MainMenu")          // if start is pressed and the current scene is "Main Menu"...
+                if (SceneManager.GetActiveScene().name == "MainMenu")                       // if start is pressed and the current scene is "Main Menu"...
                 {
-                    SceneManager.LoadScene("Main_001_TunnelMiddle", LoadSceneMode.Single);
+                    SceneManager.LoadScene("Main_001_TunnelMiddle", LoadSceneMode.Single);  // loads the level
                 }
             }
-            playerCounter = 0;
+            playerCounter = 0;                                                              // sets the player count to 0, so it doesn't interfere the next time you press "Start" to start the game
         }
     }
 }
